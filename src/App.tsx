@@ -1,7 +1,7 @@
 import React from 'react'
 import GraphForm from './components/GraphForm'
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <div className="container">
       <GraphForm />
