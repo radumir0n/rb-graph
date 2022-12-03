@@ -1,29 +1,26 @@
-import React, { useEffect, useState } from 'react'
-
-import RBGraph from './RBGraph'
+import React, { useState } from 'react'
 
 import useGraph from '../hooks/useGraph'
 
 import { Graph } from '../services/graphService'
 
 const GraphForm: React.FC = () => {
-    const [graph, setGraph, mapInputToGraphStruct] = useGraph()
+    const [
+        graph,
+        setGraph, 
+        mapInputToGraphStruct,
+        connectionMessage,
+        colorableMessage] = useGraph()
     const [input, setInput] = useState('')
-    const [graphToCheck, setGraphToCheck] = useState('')
 
     const onInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setInput(e.target.value)
     }
-
+    
     const onCheckGraph = () => {
         setGraph(new Graph<string>())
-        setGraphToCheck(input)
-        mapInputToGraphStruct(graphToCheck)
+        mapInputToGraphStruct(input)
     }
-
-    useEffect(() => {
-        console.log(graph)
-    }, [graph])
 
     return (
         <>
@@ -42,12 +39,9 @@ const GraphForm: React.FC = () => {
                 <div className="mb-3">
                     Description:
                     <ul>
-                        <li>Connected</li>
-                        <li>Red-blue colorable</li>
+                        <li>{connectionMessage}</li>
+                        <li>{colorableMessage}</li>
                     </ul>
-                </div>
-                <div className="mb-3">
-                    <RBGraph />
                 </div>
             </div>
         </>

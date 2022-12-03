@@ -1,4 +1,4 @@
-export const trimWhitespaces = (input: string) => {
+export const trimWhitespaces = (input: string): string => {
     return input.replace(/ +?/g, '');
 }
 

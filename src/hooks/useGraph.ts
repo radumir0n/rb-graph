@@ -1,56 +1,76 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import { Graph } from '../services/graphService'
-import { hasValidCharacters } from '../services/validationService'
+import { hasValidCharacters, hasRepeatedCommasAndDashes } from '../services/validationService'
 import { trimWhitespaces, timesInArray } from '../services/utilService'
 
 type useGraphOutput = [
     Graph<string>,
     React.Dispatch<React.SetStateAction<Graph<string>>>,
-    (input: string) => void
+    (input: string) => void,
+    string,
+    string
 ]
 
 const useGraph = (): useGraphOutput => {
+    const defaultGraphMessage = 'Graph is not defined'
     const [graph, setGraph] = useState(new Graph<string>())
+    const [connectionMessage, setConnectionMessage] = useState<string>(defaultGraphMessage)
+    const [isConnected, setIsConnected] = useState<boolean | undefined>(undefined)
+    const [colorableMessage, setColorableMessage] = useState<string>(defaultGraphMessage)
+    const [isRBColorable, setIsRBColorable] = useState<boolean | undefined>(undefined)
+    const [firstKey] = graph.nodes.keys()
 
-    const mapInputToGraphStruct = (input: string): void=> {
-        let edges = getEdgesFromInput(input) as string[] 
+    useEffect(() => {
+        setIsConnected(graph.isConnected(graph.nodes.get(firstKey)))
+
+        if(isConnected) {
+            setConnectionMessage('Graph is connected')
+        } else if (!isConnected && isConnected !== undefined) {
+            setConnectionMessage('Graph is disconnected')
+        } else {
+            setConnectionMessage(defaultGraphMessage)
+        }
+    }, [graph, isConnected])
+
+    useEffect(() => {
+        setIsRBColorable(graph.isRedBlueColorable(graph.nodes.get(firstKey)))
+
+        if(isRBColorable) {
+            setColorableMessage('Graph is red-blue colorable')
+        } else if (!isRBColorable && isRBColorable !== undefined) {
+            setColorableMessage('Graph is not red-blue colorable')
+        } else {
+            setColorableMessage(defaultGraphMessage)
+        }
+    }, [graph, isRBColorable])
+
+    const mapInputToGraphStruct = (input: string): void => {
+        let edges: any[] | void = getEdgesFromInput(input)
 
         if (edges) {
             const graphInstance = new Graph<string>()
-            const newEdges: string[] = []
-            const splitEdges: string[] = []
             
             for(let i = 0; i < edges.length; i++) {
                 if(timesInArray('-', edges[i]) > 1) {
                     const split: string[] = splitInputEdges(edges[i])
 
-                    splitEdges.push(...split)
+                    edges.splice(i, 1, ...split)
                 }
             }
 
-            if (splitEdges.length > 0) {
-                const remainingEdges = edges.filter((edge: string) => timesInArray('-', edge) <= 1)
-
-                newEdges.push(...splitEdges)
-                newEdges.push(...remainingEdges)
-            } else {
-                newEdges.push(...edges)
-            }
-
-            if (newEdges.length === 1 && newEdges[0].length === 1) {
-                graphInstance.addEdge(newEdges[0], newEdges[0])
+            if (edges.length === 1 && edges[0].length === 1) {
+                graphInstance.addEdge(edges[0], edges[0])
                 setGraph(graphInstance)
                 return
             }
             
-            for (let i = 0; i < newEdges.length; i++) {
-                if (!newEdges[i].includes('-')) {
-                    graphInstance.addEdge(newEdges[i], newEdges[i])
+            for (let i = 0; i < edges.length; i++) {
+                if (!edges[i].includes('-')) {
+                    graphInstance.addEdge(edges[i], edges[i])
                 } else {
-                    const [a, b] = newEdges[i].split('-')
+                    const [a, b] = edges[i].split('-')
                     graphInstance.addEdge(a, b)
-                    graphInstance.addEdge(b, a)
                 }
                 setGraph(graphInstance)
             }
@@ -59,12 +79,17 @@ const useGraph = (): useGraphOutput => {
 
     const getEdgesFromInput = (input: string): string[] | void => {
         if (!hasValidCharacters(input)) {
-            console.log('Input has invalid characters')
+            alert('Input has invalid characters')
             return
         }
 
         if (input.length === 0) {
-            console.log('Input cannot be null')
+            alert('Input cannot be null')
+            return
+        }
+
+        if(hasRepeatedCommasAndDashes(input)) {
+            alert('Input has invalid structure')
             return
         }
 
@@ -95,6 +120,8 @@ const useGraph = (): useGraphOutput => {
         graph,
         setGraph,
         mapInputToGraphStruct,
+        connectionMessage,
+        colorableMessage
     ]
 }
 

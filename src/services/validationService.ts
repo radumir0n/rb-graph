@@ -1,11 +1,11 @@
-export const hasValidCharacters = (input: string) => {
+export const hasValidCharacters = (input: string): boolean => {
     const matcher = new RegExp('^[a-zA-Z0-9, /\n/-]*$')
 
     return matcher.test(input)
 }
 
-export const hasWhiteSpace = (input: string) => {
-    const matcher = new RegExp('/\s/g')
+export const hasRepeatedCommasAndDashes = (input: string): boolean => {
+    const matcher = /([-,])\1{1,}/;
 
-    return matcher
+    return matcher.test(input);;
 }
