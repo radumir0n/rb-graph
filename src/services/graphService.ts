@@ -23,7 +23,7 @@ export class Graph<T> {
         this.nodes = new Map<T, Node<T>>()
     }
 
-    addNode(item: T): Node<T> {
+    addNode(item: T, prev?: T): Node<T> {
         let node = this.nodes.get(item)
         let color: Color;
 
@@ -31,10 +31,24 @@ export class Graph<T> {
             return node;
         }
 
-        if (this.nodes.size % 2 === 0) {
-            color = 'red'
+        if(prev) {
+            const prevData = this.nodes.get(prev)
+            if(prevData?.color === 'blue') {
+                color = 'red'
+            } else {
+                color = 'blue'
+            }
         } else {
-            color = 'blue'
+            if (this.nodes.size === 0) {
+                color = 'red'
+            } else {
+                const lastNode = [...this.nodes.values()].at(-1)
+                if (lastNode?.color === 'blue'){
+                    color = 'red'
+                } else {
+                    color = 'blue'
+                }
+            }
         }
 
         node = new Node<T>(item, color)
@@ -45,7 +59,7 @@ export class Graph<T> {
 
     addEdge(source: T, destination: T): void {
         const sourceNode: Node<T> = this.addNode(source)
-        const destinationNode: Node<T> = this.addNode(destination)
+        const destinationNode: Node<T> = this.addNode(destination, source)
 
         sourceNode.addAdjacentNode(destinationNode)
         destinationNode.addAdjacentNode(sourceNode)

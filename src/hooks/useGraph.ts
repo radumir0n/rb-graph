@@ -58,19 +58,19 @@ const useGraph = (): useGraphOutput => {
                     edges.splice(i, 1, ...split)
                 }
             }
-
-            if (edges.length === 1 && edges[0].length === 1) {
-                graphInstance.addEdge(edges[0], edges[0])
-                setGraph(graphInstance)
-                return
-            }
             
             for (let i = 0; i < edges.length; i++) {
                 if (!edges[i].includes('-')) {
-                    graphInstance.addEdge(edges[i], edges[i])
+                    graphInstance.addNode(edges[i])
                 } else {
                     const [a, b] = edges[i].split('-')
-                    graphInstance.addEdge(a, b)
+                    if (a.length === 0) {
+                        graphInstance.addNode(b)
+                    } else if (b.length === 0) {
+                        graphInstance.addNode(a)
+                    } else {
+                        graphInstance.addEdge(a, b)
+                    }
                 }
                 setGraph(graphInstance)
             }
